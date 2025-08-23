@@ -1,0 +1,30 @@
+const express=require('express')
+const adminRouter=express.Router()
+const upload=require('../middleware/multer')
+const adminAuth=require('../middleware/authAdmin')
+const {registerAdmin,verifyAdminEmail,loginAdmin,logoutAdmin, addNewWriter,updateWriterStatus,getAdminProfile,updateAdminProfile,getLatestNews,getPopularNews,getRecentNews,uploadLiveVideo,getNewsbyId,uploadMagazine,uploadDailyPulse, changePassword, getAllWriters,getWriterById}=require('../controllers/adminAuthControllers')
+const{updateNewsStatus, getAllwritersNews}=require('../controllers/newsController')
+adminRouter.post('/register-admin',upload.single('adminImage'),registerAdmin)
+adminRouter.post('/verify-admin-email',verifyAdminEmail)
+adminRouter.post('/login-admin',loginAdmin)
+adminRouter.post('/logout-admin',logoutAdmin)
+adminRouter.get('/add-new-writer',addNewWriter)
+adminRouter.get("/get-all-writers",getAllWriters)
+adminRouter.get('/get-writer-by-id/:id',getWriterById)
+adminRouter.put('/update-writer-status',updateWriterStatus)
+adminRouter.get('/admin-news/:news_id', adminAuth, getNewsbyId);
+adminRouter.put('/update-your-profile',adminAuth,upload.single('adminImg'),updateAdminProfile)
+
+
+adminRouter.get("/get-latest-news",getLatestNews)
+adminRouter.get("/get-popular-news",getPopularNews)
+adminRouter.get('/get-recent-news',getRecentNews)
+adminRouter.put('/update-news-status/:news_id',updateNewsStatus)
+adminRouter.get('/get-all-writers-news',getAllwritersNews)
+adminRouter.get("/get-admin-profile",adminAuth,getAdminProfile)
+adminRouter.post("/upload-live-video",upload.single("liveVideo"),uploadLiveVideo)
+adminRouter.post("/upload-magazine",upload.single("magazine"),uploadMagazine)
+adminRouter.post("/upload-daily-pulse",upload.array("dailyPulseImages"),uploadDailyPulse)
+adminRouter.put("/change-password",adminAuth,changePassword)
+
+module.exports=adminRouter
