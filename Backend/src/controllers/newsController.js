@@ -206,6 +206,7 @@ const getAllwritersNews = async (req, res) => {
 // };
 
 
+
 const getNewsByCategory = async (req, res) => {
   const { category } = req.query; // <- read from query instead of body
 
@@ -556,10 +557,54 @@ const getNewsBySlug = async (req, res) => {
 // };
 
 
+const getCategoryNewsById = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing news ID",
+    });
+  }
+
+  try {
+    const query = `
+      SELECT *
+      FROM newsTable
+      WHERE id = $1
+        AND LOWER(status) = 'approved'
+      LIMIT 1
+    `;
+
+    const result = await newsDashboard.query(query, [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "News not found or not approved",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "News retrieved successfully",
+      news: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error in getCategoryNewsById:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+
 
 const getLiveVideo = async (req, res) => {
   try {
-    const liveVideo = await newsDashboard.query(`SELECT videoLink 
+    const liveVideo = await newsDashboard.query(`SELECT videolink 
 FROM adminLiveVideo
 ORDER BY created_at DESC;
 `);
@@ -600,6 +645,41 @@ const getMagazine = async (req, res) => {
     });
   }
 };
+
+const getMagazineById = async (req, res) => {
+  const { id } = req.params; 
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: "Magazine ID is required" });
+  }
+
+  try {
+    const result = await newsDashboard.query(
+      "SELECT * FROM magazineTable WHERE id = $1",
+      [id] 
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ success: false, message: "Magazine not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Magazine fetched successfully",
+      magazine: result.rows[0], // return single row
+    });
+  } catch (error) {
+    console.error(error, "Error fetching magazine by ID");
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      errorMessage: error.message,
+    });
+  }
+};
+
+
+
 const getDailyPulse = async (req, res) => {
   try {
     const dailyPulse = await newsDashboard.query(
@@ -622,4 +702,45 @@ const getDailyPulse = async (req, res) => {
     });
   }
 };
-module.exports = { updateNewsStatus, getAllwritersNews, getNewsByCategory,getNewsBySlug,getLiveVideo,getMagazine,getDailyPulse,getAllNews,getNewsOnCategory };
+
+const getSearchResults = async (req, res) => {
+  const { search } = req.query;
+
+  try {
+    if (!search || search.trim() === "") {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    const searchQuery = `%${search}%`;
+
+    // Search in news table
+    const newsQuery = `
+      SELECT 
+    id,
+    title,
+    description,
+    category,
+    writername,
+    createdat
+FROM newsTable
+WHERE 
+    title ILIKE '%' || $1 || '%' 
+    OR description ILIKE '%' || $1 || '%'
+    OR category ILIKE '%' || $1 || '%'
+    OR writername ILIKE '%' || $1 || '%'
+ORDER BY createdat DESC;
+
+    `;
+    const news = await newsDashboard.query(newsQuery, [searchQuery]);
+
+
+    return res.status(200).json({
+      news: news.rows,
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = { updateNewsStatus, getAllwritersNews, getNewsByCategory,getNewsBySlug,getLiveVideo,getMagazine,getDailyPulse,getAllNews,getNewsOnCategory,getCategoryNewsById,getMagazineById,getSearchResults };

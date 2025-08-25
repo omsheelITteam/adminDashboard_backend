@@ -735,6 +735,7 @@ const getAllWriters = async (req, res) => {
 //     return res.status(500).json({ success: false, message: "Server error" });
 //   }
 // };
+
 const getWriterById = async (req, res) => {
   const { id } = req.params; // not writerId
 
@@ -862,6 +863,8 @@ const getWriterById = async (req, res) => {
 //     });
 //   }
 // };
+
+
 const getNewsbyId = async (req, res) => {
   const { news_id } = req.params;
 
@@ -1005,6 +1008,30 @@ const updateAdminProfile = async (req, res) => {
 //   }
 // };
 
+// const getLatestNews = async (req, res) => {
+//   try {
+//     const newsQuery = await newsDashboard.query(`
+//       SELECT *
+//       FROM newsTable
+//       WHERE LOWER(status) ='approved'
+//       ORDER BY "createdat" DESC
+//       LIMIT 8;
+//     `);
+
+//     return res.json({
+//       success: true,
+//       message: "Latest approved news fetched successfully",
+//       news: newsQuery.rows,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching latest news:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//     });
+//   }
+// };
+
 const getLatestNews = async (req, res) => {
   try {
     const newsQuery = await newsDashboard.query(`
@@ -1054,29 +1081,7 @@ const getLatestNews = async (req, res) => {
 //   }
 // };
 
-// const getPopularNews = async (req, res) => {
-//   try {
-//     const popularNewsQuery = await newsDashboard.query(
-//       `SELECT *
-//        FROM writersdashboard
-//        WHERE status = 'approved'
-//        ORDER BY count DESC
-//        LIMIT 4`
-//     );
 
-//     return res.status(200).json({
-//       success: true,
-//       message: "Popular news fetched successfully",
-//       data: popularNewsQuery.rows,
-//     });
-//   } catch (error) {
-//     console.error("Error fetching popular news:", error.message);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Internal server error at getPopularNews",
-//     });
-//   }
-// };
 
 // const getPopularNews = async (req, res) => {
 //   try {
@@ -1090,6 +1095,30 @@ const getLatestNews = async (req, res) => {
 //       LIMIT 4;
 //       `
 //     );
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Popular news fetched successfully",
+//       news: popularNewsQuery.rows,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching popular news:", error.message);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error at getPopularNews",
+//     });
+//   }
+// };
+
+// const getPopularNews = async (req, res) => {
+//   try {
+//     const popularNewsQuery = await newsDashboard.query(`
+//       SELECT *
+//       FROM newsTable
+//       WHERE LOWER(status)='approved'
+//       ORDER BY "count"::int DESC
+//       LIMIT 4;
+//     `);
 
 //     return res.status(200).json({
 //       success: true,
@@ -1153,6 +1182,31 @@ const getPopularNews = async (req, res) => {
 //   }
 // };
 
+// const getRecentNews = async (req, res) => {
+//   try {
+//     const newsQuery = await newsDashboard.query(`
+//       SELECT *
+//       FROM newsTable
+//       WHERE LOWER(status)='approved'
+//       ORDER BY "createdat" DESC
+//       LIMIT 8 OFFSET 8;
+//     `);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Recent approved news fetched successfully",
+//       data: newsQuery.rows,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching recent news:", error.message);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error at getRecentNews",
+//     });
+//   }
+// };
+
+
 const getRecentNews = async (req, res) => {
   try {
     const newsQuery = await newsDashboard.query(`
@@ -1160,7 +1214,7 @@ const getRecentNews = async (req, res) => {
       FROM newsTable
       WHERE LOWER(status)='approved'
       ORDER BY "createdat" DESC
-      LIMIT 8 OFFSET 8;
+      LIMIT 6 OFFSET 8;
     `);
 
     return res.status(200).json({
@@ -1177,32 +1231,9 @@ const getRecentNews = async (req, res) => {
   }
 };
 
-// const getRecentNews = async (req, res) => {
-//   try {
-//     const newsQuery = await newsDashboard.query(
-//       `
-//       SELECT n.*
-//       FROM writersdashboard w,
-//            LATERAL jsonb_array_elements(w.newsuploaded) AS n
-//       WHERE n->>'status' = 'approved'
-//       ORDER BY (n->>'createdAt')::timestamp DESC
-//       LIMIT 8 OFFSET 8;
-//       `
-//     );
 
-//     return res.json({
-//       success: true,
-//       message: "Recent approved news fetched successfully",
-//       data: newsQuery.rows,
-//     });
-//   } catch (error) {
-//     console.error("Error fetching recent news:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//     });
-//   }
-// };
+
+
 
 module.exports = {
   registerAdmin,
