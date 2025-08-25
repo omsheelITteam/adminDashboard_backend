@@ -721,13 +721,15 @@ const getSearchResults = async (req, res) => {
     description,
     category,
     writername,
-    createdat
+    createdat,
+     newsimage
 FROM newsTable
 WHERE 
     title ILIKE '%' || $1 || '%' 
     OR description ILIKE '%' || $1 || '%'
     OR category ILIKE '%' || $1 || '%'
     OR writername ILIKE '%' || $1 || '%'
+    OR newsimage ILIKE  '%' || $1 || '%'
 ORDER BY createdat DESC;
 
     `;
