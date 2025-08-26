@@ -2,7 +2,7 @@ const express=require('express')
 const adminRouter=express.Router()
 const upload=require('../middleware/multer')
 const adminAuth=require('../middleware/authAdmin')
-const {registerAdmin,verifyAdminEmail,loginAdmin,logoutAdmin, addNewWriter,updateWriterStatus,getAdminProfile,updateAdminProfile,getLatestNews,getPopularNews,getRecentNews,uploadLiveVideo,getNewsbyId,uploadMagazine,uploadDailyPulse, changePassword, getAllWriters,getWriterById}=require('../controllers/adminAuthControllers')
+const {registerAdmin,verifyAdminEmail,loginAdmin,logoutAdmin, addNewWriter,updateWriterStatus,getAdminProfile,updateAdminProfile,getLatestNews,getPopularNews,getRecentNews,uploadLiveVideo,getNewsbyId,uploadMagazine,uploadDailyPulse, changePassword, getAllWriters,getWriterById,getRegWriterById,getRegAllWriters}=require('../controllers/adminAuthControllers')
 const{updateNewsStatus, getAllwritersNews}=require('../controllers/newsController')
 adminRouter.post('/register-admin',upload.single('adminImage'),registerAdmin)
 adminRouter.post('/verify-admin-email',verifyAdminEmail)
@@ -14,6 +14,8 @@ adminRouter.get('/get-writer-by-id/:id',getWriterById)
 adminRouter.put('/update-writer-status',updateWriterStatus)
 adminRouter.get('/admin-news/:news_id', adminAuth, getNewsbyId);
 adminRouter.put('/update-your-profile',adminAuth,upload.single('adminImg'),updateAdminProfile)
+adminRouter.get("/get-reg-writer-by-id/:id",getRegWriterById)
+adminRouter.get("/get-reg-writers",getRegAllWriters)
 
 
 adminRouter.get("/get-latest-news",getLatestNews)

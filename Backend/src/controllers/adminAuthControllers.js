@@ -310,7 +310,7 @@ const updateWriterStatus = async (req, res) => {
     }
 
     const updatedWriter = result.rows[0];
-    console.log(updatedWriter.writerimage);
+    // console.log(updatedWriter.writerimage);
 
     if (status.toLowerCase() === "approved") {
       const {
@@ -1231,8 +1231,62 @@ const getRecentNews = async (req, res) => {
   }
 };
 
+const getRegAllWriters=async (req,res) => {
+  try {
+    const result = await newsDashboard.query(
+      `SELECT * FROM writersRegisterTable`
+    );
 
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No writers found",
+      });
+    }
 
+    return res.status(200).json({
+      success: true,
+      message: "Writers fetched successfully",
+      writers: result.rows,
+    });
+    
+  } catch (error) {
+    console.error("Error fetching all writers:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching all writers",
+      error: error.message,
+    });
+    
+  }
+}
+
+const getRegWriterById = async (req, res) => {
+  const { id } = req.params;  // not writerId
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: "Writer ID is required" });
+  }
+
+  try {
+    const result = await newsDashboard.query(
+      `SELECT * FROM writersRegisterTable WHERE id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Writer not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      writer: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error fetching writer by ID:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 
 
 module.exports = {
@@ -1254,4 +1308,6 @@ module.exports = {
   getLatestNews,
   getPopularNews,
   getRecentNews,
+getRegAllWriters,
+getRegWriterById,
 };
