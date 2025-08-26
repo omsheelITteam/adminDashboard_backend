@@ -285,6 +285,92 @@ const addNewWriter = async (req, res) => {
   }
 };
 
+// const updateWriterStatus = async (req, res) => {
+//   const { writerId, status } = req.body;
+
+//   if (!writerId || !["approved", "rejected"].includes(status.toLowerCase())) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "Invalid Writer Id or status",
+//     });
+//   }
+
+//   try {
+//     // Update status in original writers table
+//     const result = await newsDashboard.query(
+//       `UPDATE writersregistertable SET status = $1 WHERE id = $2 RETURNING *;`,
+//       [status.toLowerCase(), writerId]
+//     );
+
+//     if (result.rowCount === 0) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Writer not found",
+//       });
+//     }
+
+//     const updatedWriter = result.rows[0];
+//     // console.log(updatedWriter.writerimage);
+
+//     if (status.toLowerCase() === "approved") {
+//       const {
+//         name,
+//         email,
+//         writerImage, // this is the writerImage
+//         writerid, // this is the UUID or custom ID you want as writerIdCard
+//       } = updatedWriter;
+//       // const writerImg=writerImage
+
+//       const exists = await newsDashboard.query(
+//         `SELECT 1 FROM writersDashboard WHERE email = $1;`,
+//         [email]
+//       );
+
+//       if (exists.rowCount === 0) {
+//         await newsDashboard.query(
+//           `INSERT INTO writersDashboard 
+//             (id, writerName, email, writerImage, points)
+//            VALUES ($1, $2, $3, $4, $5);`,
+//           [
+//             writerId,
+//             updatedWriter.name,
+//             updatedWriter.email,
+//             updatedWriter.writerimage,
+//             100,
+//           ]
+//         );
+//       }
+//     }
+//     if (status.toLowerCase() == "approved") {
+//       await transporter.sendMail({
+//         from: process.env.SENDER_EMAIL,
+//         to: updatedWriter.email,
+//         subject: "Welcome to MystartupNEWS",
+//         html: ACCOUNT_APPROVED_SUCCESSFULLY,
+//       });
+//     } else {
+//       await transporter.sendMail({
+//         from: process.env.SENDER_EMAIL,
+//         to: updatedWriter.email,
+//         subject: "Welcome to MystartupNEWS",
+//         html: ACCOUNT_REJECTED,
+//       });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: `Writer ${status.toLowerCase()} successfully`,
+//       writer: updatedWriter,
+//     });
+//   } catch (error) {
+//     console.error("Error updating writer status:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Server error while updating writer status",
+//       error: error.message,
+//     });
+//   }
+// };
 const updateWriterStatus = async (req, res) => {
   const { writerId, status } = req.body;
 
@@ -316,8 +402,13 @@ const updateWriterStatus = async (req, res) => {
       const {
         name,
         email,
-        writerImage, // this is the writerImage
-        writerid, // this is the UUID or custom ID you want as writerIdCard
+        contributor,
+        publicprofile,
+        writerimage,
+        writerbio,
+        mobile,
+        password,      // this is the writerImage
+        writerid       // this is the UUID or custom ID you want as writerIdCard
       } = updatedWriter;
       // const writerImg=writerImage
 
@@ -329,32 +420,23 @@ const updateWriterStatus = async (req, res) => {
       if (exists.rowCount === 0) {
         await newsDashboard.query(
           `INSERT INTO writersDashboard 
-            (id, writerName, email, writerImage, points)
-           VALUES ($1, $2, $3, $4, $5);`,
+            (id, writername, email,role,publicprofile, writerimage,writerbio,mobile,password, points)
+           VALUES ($1, $2, $3, $4, $5,$6,$7,$8,$9,$10);`,
+          // [writerId, updatedWriter.name, updatedWriter.email, updatedWriter.role, updatedWriter.publicProfile, updatedWriter.writerimage, updatedWriter.writerBio, updatedWriter.mobile,updatedWriter.password, 100]
           [
-            writerId,
-            updatedWriter.name,
-            updatedWriter.email,
-            updatedWriter.writerimage,
+            writerid || writerId,
+            name,
+            email,
+            contributor,
+            publicprofile || "",
+            writerimage || "",
+            writerbio || "",  // <-- default empty string
+            mobile || "",
+            password || "",
             100,
           ]
         );
       }
-    }
-    if (status.toLowerCase() == "approved") {
-      await transporter.sendMail({
-        from: process.env.SENDER_EMAIL,
-        to: updatedWriter.email,
-        subject: "Welcome to MystartupNEWS",
-        html: ACCOUNT_APPROVED_SUCCESSFULLY,
-      });
-    } else {
-      await transporter.sendMail({
-        from: process.env.SENDER_EMAIL,
-        to: updatedWriter.email,
-        subject: "Welcome to MystartupNEWS",
-        html: ACCOUNT_REJECTED,
-      });
     }
 
     return res.status(200).json({
@@ -362,6 +444,7 @@ const updateWriterStatus = async (req, res) => {
       message: `Writer ${status.toLowerCase()} successfully`,
       writer: updatedWriter,
     });
+
   } catch (error) {
     console.error("Error updating writer status:", error);
     return res.status(500).json({
